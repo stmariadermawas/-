@@ -37,7 +37,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok)}
 .lnk{cursor:pointer}.lnk:hover td{background:var(--hd)}
 .stars button{padding:4px 10px;font-size:1.1rem}
 .msg{text-align:center;color:var(--mu);padding:30px 10px}
-#st{font-size:.8rem;color:var(--mu);text-align:center;min-height:1.2em}
+#st{position:sticky;top:0;z-index:5;font-weight:700;color:var(--ok);text-align:center;min-height:1.4em;background:var(--bg);padding:2px}
 @media print{.tabs,button,#st{display:none}}
 </style></head><body><div class="w">
 <header><h1>✝ التقرير الروحي الشهري للخادم</h1><div class="sub">سجّل يومك بالنعمة — وكل شهر تتم المتابعة مع أب الاعتراف</div></header>
@@ -71,7 +71,7 @@ function head(){return '<div class="card row"><label>الشهر<input type="mont
  '<button id="out">خروج</button></div>'+(admin?'<div class="tabs"><button data-v="team" class="'+(view!=='me'?'on':'')+'">متابعة الخدام</button></div>':'')}
 function render(){let h=head();
  if(view==='me'){
-  h+='<div class="card row"><label>اسم الخادم<input type="text" id="f-name" readonly value="'+esc(doc.name)+'"></label><label>آخر اعتراف<input type="date" id="f-cd" value="'+esc(doc.confDate)+'"></label><label>أب الاعتراف<input type="text" id="f-cf" value="'+esc(doc.confFather)+'"></label></div>'+
+  h+='<div class="card row"><label>اسم الخادم<input type="text" id="f-name" readonly value="'+esc(doc.name)+'"></label><label>آخر اعتراف<input type="date" id="f-cd" value="'+esc(doc.confDate)+'"></label><label>أب الاعتراف<input type="text" id="f-cf" value="'+esc(doc.confFather)+'"></label><button class="pri" id="sv">حفظ</button></div>'+
   '<div class="card" id="sum">'+sumHTML(doc,month)+'</div><div class="card"><b>'+mname(month)+'</b> — علّم ما قمت به كل يوم'+grid(doc,month,true)+'</div>'}
  else if(view==='team'){
   const rows=reports.map(r=>({r,s:stats(r,month)})).sort((a,b)=>(a.r.name||'').localeCompare(b.r.name||'','ar'));
@@ -91,11 +91,11 @@ document.addEventListener('change',e=>{const t=e.target;
   $('#sum').innerHTML=sumHTML(doc,month);const f=$('tfoot tr');const s=stats(doc,month);f.innerHTML='<td>المجموع</td>'+s.cols.map(x=>'<td>'+ar(x)+'</td>').join('');save(k)}
  else if(t.id==='f-cd'){doc.confDate=t.value;save()}});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='f-cf'){doc.confFather=t.value;dsave()}});
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-v],[data-u],[data-s],#sv-e,#out,#li,#rf,#ad,#wa');if(!t)return;
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-v],[data-u],[data-s],#sv-e,#sv,#out,#li,#rf,#ad,#wa');if(!t)return;
  if(t.dataset.v){view=t.dataset.v;rating=0;render()}
  else if(t.dataset.u){sel=t.dataset.u;view='detail';rating=0;render();scrollTo(0,0)}
  else if(t.dataset.s){rating=+t.dataset.s;document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s<=rating))}
- else if(t.id==='out'){logout()}else if(t.id==='li'){login($('#cd').value.trim())}else if(t.id==='rf'){loadAll()}else if(t.id==='ad'){addServ()}else if(t.id==='wa'){sendWa()}else if(t.id==='sv-e'){try{await api({a:'eval',code,uid:sel,month,rating,note:$('#note').value}).then(r=>{if(!r.ok)throw 0;evals[sel+'_'+month]={rating,note:$('#note').value}});$('#st').textContent='تم حفظ التقييم ✓'}catch(x){$('#st').textContent='تعذّر حفظ التقييم'}}});
+ else if(t.id==='sv'){save()}else if(t.id==='out'){logout()}else if(t.id==='li'){login($('#cd').value.trim())}else if(t.id==='rf'){loadAll()}else if(t.id==='ad'){addServ()}else if(t.id==='wa'){sendWa()}else if(t.id==='sv-e'){try{await api({a:'eval',code,uid:sel,month,rating,note:$('#note').value}).then(r=>{if(!r.ok)throw 0;evals[sel+'_'+month]={rating,note:$('#note').value}});$('#st').textContent='تم حفظ التقييم ✓'}catch(x){$('#st').textContent='تعذّر حفظ التقييم'}}});
 
 const API="https://script.google.com/macros/s/AKfycbznFh2PXUOZmrZvhlDSKfaQHfrm9fPSw9yc5HD9ltNmt2lU0l3h-PHscNiiZuEwalI/exec";
 const api=o=>fetch(API,{method:'POST',body:JSON.stringify(o)}).then(r=>r.json());
