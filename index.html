@@ -113,12 +113,13 @@ async function login(c){if(!c){showLogin('اكتب الكود');return}
   admin=r.role==='admin';view=admin?'team':'me';
   if(admin)apply(r);else{doc=r.me;doc.days=doc.days||{}}
   render()}catch(e){showLogin('تعذّر الاتصال، حاول مرة أخرى')}}
-async function loadAll(){try{const r=await api({a:'all',code});if(r.ok){apply(r);render()}}catch(e){}}
+async function loadAll(){try{const r=await api({a:'all',code});if(r.ok){apply(r);render();$('#st').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG')}}catch(e){}}
 function logout(){code='';try{localStorage.removeItem('kc')}catch(e){}showLogin()}
 async function addServ(){const n=$('#nn').value.trim();if(!n)return;
  try{const r=await api({a:'add',code,name:n});if(r.ok){await loadAll();$('#st').textContent='تمت الإضافة — كود '+n+': '+r.newCode}else $('#st').textContent='تعذّرت الإضافة'}catch(e){$('#st').textContent='تعذّرت الإضافة'}}
 function sendWa(){const r=reports.find(x=>x.id===sel);if(!r)return;
  window.open('https://wa.me/?text='+encodeURIComponent('سلام ونعمة '+r.name+'،\nرابط التقرير الروحي: '+location.href.split('#')[0]+'\nالكود الخاص بك: '+r.id),'_blank')}
+setInterval(()=>{if(admin&&code&&view==='team'&&!/INPUT/.test(document.activeElement?.tagName||''))loadAll()},15000);
 let c0='';try{c0=localStorage.getItem('kc')||''}catch(e){}
 if(c0)login(c0);else showLogin();
 </script></body></html>
