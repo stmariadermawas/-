@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>التقرير الروحي للخدام</title>
+<style>
+:root{--bg:#faf6ee;--card:#fff;--tx:#2b2118;--mu:#7a6a58;--ac:#8b1e1e;--bd:#e3d8c4;--ok:#2e7d4f;--hd:#f1e8d6;--wn:#b26a00;--bad:#b3261e;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17120e;--card:#221b15;--tx:#f1e8d8;--mu:#b5a48c;--ac:#e06c5c;--bd:#3d3228;--ok:#6fcf97;--hd:#2d241c;--wn:#f2b84b;--bad:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17120e;--card:#221b15;--tx:#f1e8d8;--mu:#b5a48c;--ac:#e06c5c;--bd:#3d3228;--ok:#6fcf97;--hd:#2d241c;--wn:#f2b84b;--bad:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 "Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif}
+.w{max-width:1000px;margin:auto;padding:14px}
+header{text-align:center;padding:10px 0 4px}
+h1{font-size:1.35rem;margin:0;color:var(--ac)}
+.sub{color:var(--mu);font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:12px 0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.row label{display:flex;flex-direction:column;font-size:.85rem;color:var(--mu);flex:1;min-width:150px}
+input,textarea,select,button{font:inherit;color:var(--tx)}
+input[type=text],input[type=password],input[type=date],input[type=month],textarea{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px}
+button{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;cursor:pointer}
+button.on,button.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.tabs{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.sc{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:640px;text-align:center}
+th,td{border:1px solid var(--bd);padding:5px 4px;font-size:.85rem}
+th{background:var(--hd);position:sticky;top:0}
+td:first-child,th:first-child{position:sticky;right:0;background:var(--hd);white-space:nowrap;font-weight:600}
+tr.td td{background:color-mix(in srgb,var(--ac) 10%,transparent)}
+tfoot td{background:var(--hd);font-weight:700}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok)}
+.sum{display:flex;flex-wrap:wrap;gap:10px}
+.chip{flex:1;min-width:120px;border:1px solid var(--bd);border-radius:10px;padding:8px;text-align:center}
+.chip b{display:block;font-size:1.4rem}
+.bar{height:6px;background:var(--bd);border-radius:4px;overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;background:var(--ok)}
+.g{color:var(--ok)}.y{color:var(--wn)}.r{color:var(--bad)}
+.lnk{cursor:pointer}.lnk:hover td{background:var(--hd)}
+.stars button{padding:4px 10px;font-size:1.1rem}
+.msg{text-align:center;color:var(--mu);padding:30px 10px}
+#st{font-size:.8rem;color:var(--mu);text-align:center;min-height:1.2em}
+@media print{.tabs,button,#st{display:none}}
+</style></head><body><div class="w">
+<header><h1>✝ التقرير الروحي الشهري للخادم</h1><div class="sub">سجّل يومك بالنعمة — وكل شهر تتم المتابعة مع أب الاعتراف</div></header>
+<div id="st"></div><div id="app"><div class="msg">جارٍ التحميل…</div></div></div>
+<script>
+const C=['صلاة أجبية','كتاب مقدس','قداس','تناول','خدمة','افتقاد','اجتماع خدام','اجتماع روحي','صوم','تسبحة'];
+const AD='٠١٢٣٤٥٦٧٨٩',ar=n=>String(n).replace(/\d/g,d=>AD[d]);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const T=new Date(),curM=T.getFullYear()+'-'+pad(T.getMonth()+1),todayKey=curM+'-'+pad(T.getDate());
+const $=s=>document.querySelector(s);
+let code='',user,uid,admin=false,month=curM,view='me',sel=null,doc={days:{}},reports=[],evals={},rating=0,timer,names={};
+const dim=m=>new Date(+m.slice(0,4),+m.slice(5),0).getDate();
+const counted=m=>m<curM?dim(m):m>curM?0:T.getDate();
+const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const mname=m=>MN[+m.slice(5)-1]+' '+ar(m.slice(0,4));
+function stats(d,m){const cols=Array(10).fill(0);let tot=0,rec=0;
+ for(let i=1;i<=dim(m);i++){const b=d?.days?.[m+'-'+pad(i)];if(!b)continue;let any=0;
+  for(let c=0;c<10;c++)if(b[c]==='1'){cols[c]++;tot++;any=1}rec+=any}
+ const n=counted(m),pct=n?Math.round(tot/(n*10)*100):0;return{cols,tot,rec,n,pct}}
+const lbl=p=>p>=80?['ممتاز','g']:p>=60?['جيد جداً','g']:p>=40?['جيد','y']:['يحتاج متابعة','r'];
+function grid(d,m,edit){let h='<div class="sc"><table><thead><tr><th>اليوم</th>'+C.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
+ for(let i=1;i<=dim(m);i++){const k=m+'-'+pad(i),b=d?.days?.[k]||'0000000000',fut=k>todayKey;
+  h+='<tr class="'+(k===todayKey?'td':'')+'"><td>'+ar(i)+' / '+ar(m.slice(5))+'</td>';
+  for(let c=0;c<10;c++)h+='<td><input type="checkbox" data-d="'+k+'" data-c="'+c+'" '+(b[c]==='1'?'checked ':'')+((edit&&!fut)?'':'disabled')+'></td>';
+  h+='</tr>'}
+ const s=stats(d,m);return h+'</tbody><tfoot><tr><td>المجموع</td>'+s.cols.map(x=>'<td>'+ar(x)+'</td>').join('')+'</tr></tfoot></table></div>'}
+function sumHTML(d,m){const s=stats(d,m),[t,c]=lbl(s.pct);
+ return '<div class="sum"><div class="chip"><b class="'+c+'">'+ar(s.pct)+'٪</b>نسبة الانتظام</div><div class="chip"><b class="'+c+'">'+t+'</b>الحالة</div><div class="chip"><b>'+ar(s.rec)+' / '+ar(s.n)+'</b>أيام مسجّلة</div><div class="chip"><b>'+ar(s.tot)+'</b>إجمالي الممارسات</div></div>'}
+function head(){return '<div class="card row"><label>الشهر<input type="month" id="mo" value="'+month+'"></label>'+
+ '<button id="out">خروج</button></div>'+(admin?'<div class="tabs"><button data-v="team" class="'+(view!=='me'?'on':'')+'">متابعة الخدام</button></div>':'')}
+function render(){let h=head();
+ if(view==='me'){
+  h+='<div class="card row"><label>اسم الخادم<input type="text" id="f-name" readonly value="'+esc(doc.name)+'"></label><label>آخر اعتراف<input type="date" id="f-cd" value="'+esc(doc.confDate)+'"></label><label>أب الاعتراف<input type="text" id="f-cf" value="'+esc(doc.confFather)+'"></label></div>'+
+  '<div class="card" id="sum">'+sumHTML(doc,month)+'</div><div class="card"><b>'+mname(month)+'</b> — علّم ما قمت به كل يوم'+grid(doc,month,true)+'</div>'}
+ else if(view==='team'){
+  const rows=reports.map(r=>({r,s:stats(r,month)})).sort((a,b)=>(a.r.name||'').localeCompare(b.r.name||'','ar'));
+  h+='<div class="card row"><label>إضافة خادم جديد<input type="text" id="nn" placeholder="اسم الخادم"></label><button class="pri" id="ad">إضافة</button><button id="rf">تحديث</button></div><div class="card"><b>الخدام — '+mname(month)+'</b> ('+ar(rows.length)+')<div class="sc" style="margin-top:8px"><table><thead><tr><th>الخادم</th><th>أيام مسجّلة</th><th>النسبة</th><th>الحالة</th><th>آخر اعتراف</th><th>تقييم الكاهن</th></tr></thead><tbody>'+
+  (rows.length?rows.map(({r,s})=>{const [t,c]=lbl(s.pct),e=evals[r.id+'_'+month];
+   return '<tr class="lnk" data-u="'+esc(r.id)+'"><td>'+esc(r.name||names[r.id]||'بدون اسم')+'</td><td>'+ar(s.rec)+' / '+ar(s.n)+'</td><td class="'+c+'">'+ar(s.pct)+'٪</td><td class="'+c+'">'+t+'</td><td>'+esc(r.confDate?ar(r.confDate):'—')+'</td><td>'+(e?'★'.repeat(e.rating)+'☆'.repeat(5-e.rating):'—')+'</td></tr>'}).join(''):'<tr><td colspan="6" class="msg">لم يسجّل أي خادم بعد. شارك الرابط مع الخدام.</td></tr>')+
+  '</tbody></table></div></div>'}
+ else{const r=reports.find(x=>x.id===sel)||{days:{}},s=stats(r,month),e=evals[sel+'_'+month]||{};rating=rating||e.rating||0;
+  h+='<div class="card"><button data-v="team">← رجوع للقائمة</button> <b>'+esc(r.name||'خادم')+'</b> — '+mname(month)+
+  ' <button id="wa">إرسال الكود واتساب</button><div class="sub">الكود: '+esc(r.id)+'</div><div class="sub">آخر اعتراف: '+esc(r.confDate?ar(r.confDate):'—')+' • أب الاعتراف: '+esc(r.confFather||'—')+'</div></div><div class="card">'+sumHTML(r,month)+'</div>'+
+  '<div class="card"><b>نسبة كل بند</b><div class="sum" style="margin-top:8px">'+C.map((c,i)=>{const p=s.n?Math.round(s.cols[i]/s.n*100):0;return '<div class="chip">'+c+'<b>'+ar(p)+'٪</b><div class="bar"><i style="width:'+p+'%"></i></div></div>'}).join('')+'</div></div>'+
+  '<div class="card">'+grid(r,month,false)+'</div><div class="card"><b>التقييم الروحي لشهر '+mname(month)+'</b><div class="stars" style="margin:8px 0">'+[1,2,3,4,5].map(n=>'<button data-s="'+n+'" class="'+(rating>=n?'on':'')+'">★</button>').join(' ')+'</div><textarea id="note" rows="4" style="width:100%" placeholder="ملاحظات الكاهن وخطة المتابعة (تظهر لك فقط)">'+esc(e.note)+'</textarea><p><button class="pri" id="sv-e">حفظ التقييم</button></p></div>'}
+ $('#app').innerHTML=h}
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.id==='mo'&&t.value){month=t.value;rating=0;render()}
+ else if(t.dataset.d){const k=t.dataset.d,b=(doc.days[k]||'0000000000').split('');b[t.dataset.c]=t.checked?'1':'0';doc.days[k]=b.join('');
+  $('#sum').innerHTML=sumHTML(doc,month);const f=$('tfoot tr');const s=stats(doc,month);f.innerHTML='<td>المجموع</td>'+s.cols.map(x=>'<td>'+ar(x)+'</td>').join('');save(k)}
+ else if(t.id==='f-cd'){doc.confDate=t.value;save()}});
+document.addEventListener('input',e=>{const t=e.target;if(t.id==='f-cf'){doc.confFather=t.value;dsave()}});
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-v],[data-u],[data-s],#sv-e,#out,#li,#rf,#ad,#wa');if(!t)return;
+ if(t.dataset.v){view=t.dataset.v;rating=0;render()}
+ else if(t.dataset.u){sel=t.dataset.u;view='detail';rating=0;render();scrollTo(0,0)}
+ else if(t.dataset.s){rating=+t.dataset.s;document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s<=rating))}
+ else if(t.id==='out'){logout()}else if(t.id==='li'){login($('#cd').value.trim())}else if(t.id==='rf'){loadAll()}else if(t.id==='ad'){addServ()}else if(t.id==='wa'){sendWa()}else if(t.id==='sv-e'){try{await api({a:'eval',code,uid:sel,month,rating,note:$('#note').value}).then(r=>{if(!r.ok)throw 0;evals[sel+'_'+month]={rating,note:$('#note').value}});$('#st').textContent='تم حفظ التقييم ✓'}catch(x){$('#st').textContent='تعذّر حفظ التقييم'}}});
+
+const API="https://script.google.com/macros/s/AKfycbznFh2PXUOZmrZvhlDSKfaQHfrm9fPSw9yc5HD9ltNmt2lU0l3h-PHscNiiZuEwalI/exec";
+const api=o=>fetch(API,{method:'POST',body:JSON.stringify(o)}).then(r=>r.json());
+let q=Promise.resolve();
+function save(k){$('#st').textContent='جارٍ الحفظ…';
+ const o={a:'save',code,confDate:doc.confDate||'',confFather:doc.confFather||''};if(k){o.date=k;o.bits=doc.days[k]}
+ q=q.then(()=>api(o)).then(r=>{$('#st').textContent=r.ok?'تم الحفظ ✓':'تعذّر الحفظ'}).catch(()=>{$('#st').textContent='تعذّر الحفظ، تأكد من الاتصال'})}
+const dsave=()=>{clearTimeout(timer);timer=setTimeout(()=>save(),700)};
+function showLogin(msg){$('#app').innerHTML='<div class="card"><div class="row"><label>الكود الخاص بك<input type="text" id="cd" dir="ltr" autocomplete="off"></label><button class="pri" id="li">دخول</button></div><div class="sub">'+esc(msg||'الكود يرسله لك الأب الكاهن')+'</div></div>'}
+function apply(r){reports=r.servants;evals=r.evals||{}}
+async function login(c){if(!c){showLogin('اكتب الكود');return}
+ $('#app').innerHTML='<div class="msg">جارٍ الدخول…</div>';
+ try{const r=await api({a:'login',code:c});if(!r.ok){showLogin('الكود غير صحيح');return}
+  code=c;try{localStorage.setItem('kc',c)}catch(e){}
+  admin=r.role==='admin';view=admin?'team':'me';
+  if(admin)apply(r);else{doc=r.me;doc.days=doc.days||{}}
+  render()}catch(e){showLogin('تعذّر الاتصال، حاول مرة أخرى')}}
+async function loadAll(){try{const r=await api({a:'all',code});if(r.ok){apply(r);render()}}catch(e){}}
+function logout(){code='';try{localStorage.removeItem('kc')}catch(e){}showLogin()}
+async function addServ(){const n=$('#nn').value.trim();if(!n)return;
+ try{const r=await api({a:'add',code,name:n});if(r.ok){await loadAll();$('#st').textContent='تمت الإضافة — كود '+n+': '+r.newCode}else $('#st').textContent='تعذّرت الإضافة'}catch(e){$('#st').textContent='تعذّرت الإضافة'}}
+function sendWa(){const r=reports.find(x=>x.id===sel);if(!r)return;
+ window.open('https://wa.me/?text='+encodeURIComponent('سلام ونعمة '+r.name+'،\nرابط التقرير الروحي: '+location.href.split('#')[0]+'\nالكود الخاص بك: '+r.id),'_blank')}
+let c0='';try{c0=localStorage.getItem('kc')||''}catch(e){}
+if(c0)login(c0);else showLogin();
+</script></body></html>
