@@ -68,7 +68,7 @@ function grid(d,m,edit){let h='<div class="sc"><table><thead><tr><th>اليوم<
 function sumHTML(d,m){const s=stats(d,m),[t,c]=lbl(s.pct);
  return '<div class="sum"><div class="chip"><b class="'+c+'">'+ar(s.pct)+'٪</b>نسبة الانتظام</div><div class="chip"><b class="'+c+'">'+t+'</b>الحالة</div><div class="chip"><b>'+ar(s.rec)+' / '+ar(s.n)+'</b>أيام مسجّلة</div><div class="chip"><b>'+ar(s.tot)+'</b>إجمالي الممارسات</div></div>'}
 function head(){return '<div class="card row"><label>الشهر<input type="month" id="mo" value="'+month+'"></label>'+
- '<button id="wa">إرسال الكود واتساب</button> <button id="rn">تعديل الاسم</button> <button id="dl">حذف الخادم</button></div>'+(admin?'<div class="tabs"><button data-v="team" class="'+(view!=='me'?'on':'')+'">متابعة الخدام</button></div>':'')}
+ '<button id="out">خروج</button></div>'+(admin?'<div class="tabs"><button data-v="team" class="'+(view!=='me'?'on':'')+'">متابعة الخدام</button></div>':'')}
 function render(){let h=head();
  if(view==='me'){
   h+='<div class="card row"><label>اسم الخادم<input type="text" id="f-name" readonly value="'+esc(doc.name)+'"></label><label>آخر اعتراف<input type="date" id="f-cd" value="'+esc(doc.confDate)+'"></label><label>أب الاعتراف<input type="text" id="f-cf" value="'+esc(doc.confFather)+'"></label><button class="pri" id="sv">حفظ</button></div>'+
@@ -81,7 +81,7 @@ function render(){let h=head();
   '</tbody></table></div></div>'}
  else{const r=reports.find(x=>x.id===sel)||{days:{}},s=stats(r,month),e=evals[sel+'_'+month]||{};rating=rating||e.rating||0;
   h+='<div class="card"><button data-v="team">← رجوع للقائمة</button> <b>'+esc(r.name||'خادم')+'</b> — '+mname(month)+
-  ' <button id="wa">إرسال الكود واتساب</button><div class="sub">الكود: '+esc(r.id)+'</div><div class="sub">آخر اعتراف: '+esc(r.confDate?ar(r.confDate):'—')+' • أب الاعتراف: '+esc(r.confFather||'—')+'</div></div><div class="card">'+sumHTML(r,month)+'</div>'+
+  ' <button id="wa">إرسال الكود واتساب</button> <button id="rn">تعديل الاسم</button> <button id="dl">حذف الخادم</button><div class="sub">الكود: '+esc(r.id)+'</div><div class="sub">آخر اعتراف: '+esc(r.confDate?ar(r.confDate):'—')+' • أب الاعتراف: '+esc(r.confFather||'—')+'</div></div><div class="card">'+sumHTML(r,month)+'</div>'+
   '<div class="card"><b>نسبة كل بند</b><div class="sum" style="margin-top:8px">'+C.map((c,i)=>{const p=s.n?Math.round(s.cols[i]/s.n*100):0;return '<div class="chip">'+c+'<b>'+ar(p)+'٪</b><div class="bar"><i style="width:'+p+'%"></i></div></div>'}).join('')+'</div></div>'+
   '<div class="card">'+grid(r,month,false)+'</div><div class="card"><b>التقييم الروحي لشهر '+mname(month)+'</b><div class="stars" style="margin:8px 0">'+[1,2,3,4,5].map(n=>'<button data-s="'+n+'" class="'+(rating>=n?'on':'')+'">★</button>').join(' ')+'</div><textarea id="note" rows="4" style="width:100%" placeholder="ملاحظات الكاهن وخطة المتابعة (تظهر لك فقط)">'+esc(e.note)+'</textarea><p><button class="pri" id="sv-e">حفظ التقييم</button></p></div>'}
  $('#app').innerHTML=h}
